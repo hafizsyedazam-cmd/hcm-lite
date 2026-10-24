@@ -29,6 +29,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     document.body.classList.remove("sidebar-open");
   }, [pathname]);
 
+  // Remember the desktop mini-sidebar choice.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("hcm-sidebar") === "mini") document.body.classList.add("sidebar-collapsed");
+    } catch {}
+  }, []);
+
   if (loading || !me || me.mustChangePassword) {
     return (
       <div className="splash">
@@ -38,17 +45,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const toggleSidebar = () => {
-    if (window.innerWidth < 992) document.body.classList.toggle("sidebar-open");
-    else document.body.classList.toggle("sidebar-collapsed");
+    if (window.innerWidth < 992) {
+      document.body.classList.toggle("sidebar-open");
+      return;
+    }
+    const mini = document.body.classList.toggle("sidebar-collapsed");
+    try {
+      localStorage.setItem("hcm-sidebar", mini ? "mini" : "full");
+    } catch {}
+  };
+  const logout = async () => {
+    await signOut();
+    router.replace("/login");
   };
 
   return (
     <>
       <aside className="app-sidebar">
-        <Link href="/dashboard" className="sidebar-logo">
+        <Link href="/dashboard" className="sidebar-logo" title="HCM Lite">
           <span className="logo-mark">H</span>
           <span className="logo-text">
             HCM<span>Lite</span>
+            <span className="logo-sub">{me.companyName}</span>
           </span>
         </Link>
         <nav className="sidebar-scroll">
@@ -60,11 +78,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="menu-title">{group.title}</div>
                 {items.map((item) => {
                   const Icon = item.icon;
+                  const label = labelFor(item, me.role);
                   const active = pathname === item.href || pathname.startsWith(item.href + "/");
                   return (
-                    <Link key={item.href} href={item.href} className={`menu-link ${active ? "active" : ""}`}>
-                      <Icon size={18} />
-                      <span>{labelFor(item, me.role)}</span>
+                    <Link key={item.href} href={item.href} className={`menu-link ${active ? "active" : ""}`} title={label}>
+                      <span className="menu-icon">
+                        <Icon size={18} />
+                      </span>
+                      <span className="menu-text">{label}</span>
                     </Link>
                   );
                 })}
@@ -72,37 +93,67 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <div className="sidebar-promo">
+          <span className="promo-ico">
+            <IconSparkles size={18} />
+          </span>
+          <h6>Ask HCM Assistant</h6>
+          <p>Get answers from live attendance, leave and payroll data.</p>
+          <button onClick={() => setChatOpen(true)}>Open assistant</button>
+        </div>
         <div className="sidebar-user">
           <Avatar name={me.name} />
-          <div className="min-w-0">
+          <div className="user-meta">
             <div className="text-body-strong fw-medium text-truncate">{me.name}</div>
             <RoleBadge role={me.role} />
           </div>
+          <button className="logout" onClick={logout} title="Sign out" aria-label="Sign out">
+            <IconLogout size={17} />
+          </button>
         </div>
       </aside>
       <div className="sidebar-overlay" onClick={() => document.body.classList.remove("sidebar-open")} />
 
-      <header className="app-header">
-        <button className="icon-btn" onClick={toggleSidebar} aria-label="Toggle menu">
-          <IconMenu2 size={18} />
-        </button>
-        {me.role !== "employee" && <HeaderSearch />}
-        <div className="ms-auto d-flex align-items-center gap-2">
-          <button className="btn btn-primary d-none d-sm-inline-flex" onClick={() => setChatOpen(true)}>
-            <IconSparkles size={16} /> AI Assistant
-          </button>
-          <ThemeToggle />
-          <Notifications />
-          <UserMenu onSignOut={async () => { await signOut(); router.replace("/login"); }} />
-        </div>
-      </header>
-
       <main className="page-wrapper">
+        <header className="app-header">
+          <button className="icon-btn" onClick={toggleSidebar} aria-label="Toggle menu">
+            <IconMenu2 size={18} />
+          </button>
+          <Greeting name={me.name} />
+          <div className="ms-auto d-flex align-items-center gap-2">
+            {me.role !== "employee" && <HeaderSearch />}
+            <button className="btn-ai d-none d-sm-inline-flex" onClick={() => setChatOpen(true)}>
+              <IconSparkles size={16} /> Ask AI
+            </button>
+            <ThemeToggle />
+            <Notifications />
+            <UserMenu onSignOut={logout} />
+          </div>
+        </header>
         <div className="content">{children}</div>
       </main>
 
       <AiChat open={chatOpen} onOpenChange={setChatOpen} />
     </>
+  );
+}
+
+function Greeting({ name }: { name: string }) {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the greeting depends on the viewer's clock
+    setNow(new Date());
+  }, []);
+  if (!now) return <div className="header-greet" />;
+  const h = now.getHours();
+  const part = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return (
+    <div className="header-greet">
+      <strong>
+        {part}, {name.split(" ")[0]} 👋
+      </strong>
+      <span>{now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+    </div>
   );
 }
 

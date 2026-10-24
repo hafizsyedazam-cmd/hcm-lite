@@ -2,6 +2,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
+  IconBuildingSkyscraper,
+  IconCalendarCheck,
+  IconCalendarStats,
+  IconUserPlus,
   IconCalendarOff,
   IconCash,
   IconChecklist,
@@ -46,44 +50,64 @@ export function StaffDashboard({ role }: { role: "admin" | "hr" }) {
     <>
       <PageHeader title={isAdmin ? "Admin Dashboard" : "HR Dashboard"} crumbs={["Dashboard", isAdmin ? "Admin Dashboard" : "HR Dashboard"]} actions={<DashboardFilters value={filters} onChange={setFilters} />} />
 
-      <div className="card welcome-card">
-        <div className="d-flex align-items-center gap-3">
-          <Avatar name={me?.name ?? ""} size="lg" />
+      <section className="hero">
+        <div className="hero-top">
           <div>
-            <h4 className="mb-1">Welcome back, {me?.name.split(" ")[0]}</h4>
+            <span className="hero-date">
+              <IconCalendarStats size={14} /> {m ? `${prettyDate(m.filters.from)} – ${prettyDate(m.filters.to)} · ${m.filters.department}` : "Loading overview..."}
+            </span>
+            <h3>Welcome back, {me?.name.split(" ")[0]} 👋</h3>
             {m ? (
-              <p className="mb-0 fs-13">
+              <p>
                 You have <Link href="/leave">{m.pendingApprovals.leave} pending leave request{m.pendingApprovals.leave === 1 ? "" : "s"}</Link> and{" "}
-                <Link href="/attendance?tab=corrections">{m.pendingApprovals.corrections} attendance correction{m.pendingApprovals.corrections === 1 ? "" : "s"}</Link>. Showing{" "}
-                {m.filters.department.toLowerCase()} · {prettyDate(m.filters.from)} – {prettyDate(m.filters.to)}.
+                <Link href="/attendance?tab=corrections">
+                  {m.pendingApprovals.corrections} attendance correction{m.pendingApprovals.corrections === 1 ? "" : "s"}
+                </Link>{" "}
+                waiting. Here is how {me?.companyName} is doing today.
               </p>
             ) : (
-              <p className="mb-0 fs-13">Loading your company overview...</p>
+              <p>Pulling the latest numbers from your HR data...</p>
+            )}
+          </div>
+          <div className="hero-actions">
+            {isAdmin ? (
+              <>
+                <Link href="/organization" className="btn-hero ghost">
+                  <IconBuildingSkyscraper size={16} /> Organization
+                </Link>
+                <Link href="/users" className="btn-hero">
+                  <IconUserPlus size={16} /> Create HR login
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/attendance" className="btn-hero ghost">
+                  <IconCalendarCheck size={16} /> Attendance board
+                </Link>
+                <Link href="/employees?new=1" className="btn-hero">
+                  <IconUserPlus size={16} /> Register employee
+                </Link>
+              </>
             )}
           </div>
         </div>
-        <div className="d-flex gap-2 flex-wrap">
-          {isAdmin ? (
-            <>
-              <Link href="/organization" className="btn btn-outline-light">
-                Organization setup
-              </Link>
-              <Link href="/users" className="btn btn-primary">
-                Create HR login
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href="/attendance" className="btn btn-outline-light">
-                Attendance board
-              </Link>
-              <Link href="/employees?new=1" className="btn btn-primary">
-                Register employee
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
+        {m && (
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <b>{m.headcount}</b>Active employees
+            </div>
+            <div className="hero-stat">
+              <b>{m.today.present}</b>Present today
+            </div>
+            <div className="hero-stat">
+              <b>{m.today.onLeave}</b>On leave today
+            </div>
+            <div className="hero-stat">
+              <b>{m.attendance.rate}%</b>Attendance rate
+            </div>
+          </div>
+        )}
+      </section>
 
       {loading && !m && <PageLoading />}
       {error && !m && (

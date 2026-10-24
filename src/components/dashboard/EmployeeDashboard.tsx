@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { IconCalendarEvent, IconClockExclamation, IconClockHour4, IconDownload, IconFileInvoice, IconPercentage } from "@tabler/icons-react";
+import { IconCalendarCheck, IconCalendarEvent, IconClockExclamation, IconClockHour4, IconDownload, IconFileInvoice, IconId, IconPercentage } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { useAuth } from "../AuthProvider";
 import { Chart } from "../Chart";
@@ -8,7 +8,7 @@ import { ChatBox } from "../ai/AiChat";
 import { CheckInWidget } from "../attendance/CheckInWidget";
 import { Avatar, EmptyState, ErrorState, Kpi, PageHeader, PageLoading, StatusBadge, money } from "../ui";
 import { download, errorMessage, useApi } from "@/lib/client/api";
-import { prettyDate, prettyDateTime, prettyMonth } from "@/lib/shared/dates";
+import { prettyDate, prettyDateTime, prettyMonth, prettyTime } from "@/lib/shared/dates";
 import type { employeeDashboard } from "@/lib/server/services/analytics";
 
 type Data = Awaited<ReturnType<typeof employeeDashboard>>;
@@ -34,20 +34,45 @@ export function EmployeeDashboard() {
     <>
       <PageHeader title="My Dashboard" crumbs={["Dashboard", "Employee"]} />
 
-      <div className="card welcome-card">
-        <div className="d-flex align-items-center gap-3">
-          <Avatar name={me?.name ?? ""} size="lg" />
+      <section className="hero">
+        <div className="hero-top">
           <div>
-            <h4 className="mb-1">Hello, {me?.name.split(" ")[0]} 👋</h4>
-            <p className="mb-0 fs-13">
-              {d.employee.code} · joined {prettyDate(d.employee.joinDate)} · {d.today.record ? "you are checked in today" : "don't forget to check in"}
+            <span className="hero-date">
+              <IconId size={14} /> {d.employee.code} · joined {prettyDate(d.employee.joinDate)}
+            </span>
+            <h3>Hello, {me?.name.split(" ")[0]} 👋</h3>
+            <p>
+              {d.today.record
+                ? d.today.record.checkOut
+                  ? "You're done for today. Great work!"
+                  : `You checked in at ${prettyTime(d.today.record.checkIn)}. Don't forget to check out.`
+                : `Office starts at ${d.officeHours.start}. Check in below to start your day.`}
             </p>
           </div>
+          <div className="hero-actions">
+            <Link href="/attendance" className="btn-hero ghost">
+              <IconCalendarCheck size={16} /> My attendance
+            </Link>
+            <Link href="/leave?apply=1" className="btn-hero">
+              <IconCalendarEvent size={16} /> Apply for leave
+            </Link>
+          </div>
         </div>
-        <Link href="/leave?apply=1" className="btn btn-primary">
-          <IconCalendarEvent size={16} /> Apply for leave
-        </Link>
-      </div>
+        <div className="hero-stats">
+          <div className="hero-stat">
+            <b>{d.hoursThisWeek} h</b>Worked this week
+          </div>
+          <div className="hero-stat">
+            <b>{d.attendanceRateThisMonth}%</b>Attendance this month
+          </div>
+          <div className="hero-stat">
+            <b>{d.balances.reduce((s, b) => s + (b.remaining ?? 0), 0)}</b>Leave days left
+          </div>
+          <div className="hero-stat">
+            <b>{d.lastPayslip ? money(d.lastPayslip.net) : "—"}</b>Last net pay
+          </div>
+        </div>
+      </section>
 
       <div className="row">
         <div className="col-xl-4 col-lg-6">

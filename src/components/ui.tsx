@@ -43,11 +43,15 @@ export type KpiColor = "primary" | "secondary" | "info" | "pink" | "purple" | "d
 
 export function Kpi({ icon, color, label, value, foot, href }: { icon: ReactNode; color: KpiColor; label: string; value: ReactNode; foot?: ReactNode; href?: string }) {
   return (
-    <div className="card kpi">
-      <span className={`kpi-icon bg-${color}-c`}>{icon}</span>
-      <div className="kpi-label">{label}</div>
-      <div className="kpi-value">{value}</div>
-      {(foot || href) && <div className="kpi-foot">{href ? <Link href={href}>{foot ?? "View all"}</Link> : foot}</div>}
+    <div className="card kpi" data-color={color}>
+      <div className="kpi-top">
+        <div className="min-w-0">
+          <div className="kpi-label">{label}</div>
+          <div className="kpi-value">{value}</div>
+        </div>
+        <span className="kpi-icon">{icon}</span>
+      </div>
+      {(foot || href) && <div className="kpi-foot">{href ? <Link href={href}>{foot ?? "View all"} →</Link> : foot}</div>}
     </div>
   );
 }
