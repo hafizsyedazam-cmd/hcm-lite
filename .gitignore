@@ -49,3 +49,7 @@ firebase-debug.log
 
 # local test logins
 *.local.json
+
+.vercel
+.env*
+!.env.example
