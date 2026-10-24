@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// The browser never reads or writes Firestore directly. Every request goes
+// through the Next.js API, which checks role and data scope with the Admin SDK.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
