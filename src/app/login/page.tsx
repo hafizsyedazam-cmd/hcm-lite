@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { IconArrowRight, IconEye, IconEyeOff, IconInfoCircle, IconLock, IconMail } from "@tabler/icons-react";
 import { AuthLayout } from "@/components/AuthLayout";
 import { useAuth } from "@/components/AuthProvider";
 import { Field } from "@/components/ui";
@@ -53,28 +53,42 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      <h3 className="mb-1">Sign in</h3>
-      <p className="mb-4">{company ? `Welcome to ${company}'s HR portal.` : "Welcome back."}</p>
+      <div className="card-logo">H</div>
+      <h3>Welcome back 👋</h3>
+      <p className="sub">{company ? `Sign in to ${company}'s HR portal` : "Sign in to your HR portal"}</p>
+
       {(error || authError) && <div className="alert alert-danger fs-13 py-2">{error || authError}</div>}
+
       <form onSubmit={submit}>
-        <Field label="Email">
-          <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" placeholder="you@company.com" />
+        <Field label="Email address">
+          <div className="input-icon">
+            <IconMail size={18} />
+            <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" placeholder="you@company.com" autoFocus />
+          </div>
         </Field>
         <Field label="Password">
-          <div className="position-relative">
-            <input type={show ? "text" : "password"} className="form-control pe-5" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
-            <button type="button" className="btn btn-sm position-absolute top-50 end-0 translate-middle-y text-muted" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"}>
-              {show ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+          <div className="input-icon">
+            <IconLock size={18} />
+            <input type={show ? "text" : "password"} className="form-control pe-5" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" placeholder="••••••••" />
+            <button type="button" className="toggle-eye" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"}>
+              {show ? <IconEyeOff size={18} /> : <IconEye size={18} />}
             </button>
           </div>
         </Field>
-        <button className="btn btn-primary w-100 py-2" disabled={busy || loading}>
-          {busy ? "Signing in..." : "Sign in"}
+        <button className="btn btn-auth mt-2" disabled={busy || loading}>
+          {busy ? "Signing in..." : (
+            <>
+              Sign in <IconArrowRight size={18} />
+            </>
+          )}
         </button>
       </form>
-      <p className="fs-13 mt-4 mb-0">
-        New employees get a temporary password from HR and set their own password on first sign-in.
-      </p>
+
+      <div className="auth-note">
+        <IconInfoCircle size={18} />
+        <span>New employee? HR shares a temporary password with you. You&apos;ll set your own password on first sign-in.</span>
+      </div>
+      <div className="auth-foot">Secured with Firebase Authentication · HCM Lite</div>
     </AuthLayout>
   );
 }

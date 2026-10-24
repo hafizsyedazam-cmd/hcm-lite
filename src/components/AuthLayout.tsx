@@ -1,51 +1,53 @@
 import type { ReactNode } from "react";
-import { IconBrain, IconCalendarCheck, IconCash } from "@tabler/icons-react";
+import { IconCalendarCheck, IconCash, IconSparkles } from "@tabler/icons-react";
 
-/** Split screen used by setup, login and change-password. */
+const FEATURES = [
+  { icon: IconCalendarCheck, title: "Attendance", text: "Web & camera check-in" },
+  { icon: IconCash, title: "Payroll", text: "Tax slabs & PDF payslips" },
+  { icon: IconSparkles, title: "AI assistant", text: "Answers from your data" },
+];
+
+/** Full-screen photo background with a brand panel and a floating form card. Used by setup, login and change-password. */
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="auth-wrap">
-      <div className="auth-side">
-        <span className="circle" style={{ width: 380, height: 380, right: -120, top: -100 }} />
-        <span className="circle" style={{ width: 260, height: 260, left: -80, bottom: -60 }} />
-        <div className="d-flex align-items-center gap-2 position-relative">
-          <span className="logo-mark" style={{ background: "#fff", color: "var(--primary)" }}>
-            H
-          </span>
-          <span className="fs-4 fw-bold">HCM Lite</span>
+      <section className="auth-side">
+        <div className="auth-brand">
+          <span className="logo-mark">H</span>
+          HCM Lite
         </div>
-        <div className="position-relative">
-          <h1 className="mb-3">
-            People, attendance, leave
-            <br />
-            and payroll in one place.
+
+        <div className="hide-sm">
+          <span className="auth-eyebrow">
+            <span className="pulse" /> AI-assisted HR for Admin, HR & Employees
+          </span>
+          <h1>
+            Your people, attendance and payroll — <span className="accent">in one smart place.</span>
           </h1>
-          <p className="mb-4" style={{ opacity: 0.9, maxWidth: 420 }}>
-            An AI-assisted HR system for Admin, HR and Employees. Every number comes from what your team does in the app.
-          </p>
-          <div className="d-flex flex-column gap-2" style={{ maxWidth: 400 }}>
-            {[
-              [IconCalendarCheck, "Web and camera check-in with live attendance board"],
-              [IconCash, "Monthly payroll with tax slabs and PDF payslips"],
-              [IconBrain, "Ask the AI assistant: “Who is on leave today?”"],
-            ].map(([Icon, text], i) => {
-              const I = Icon as typeof IconCash;
-              return (
-                <div className="glass d-flex align-items-center gap-3" key={i}>
-                  <I size={22} />
-                  <span>{text as string}</span>
-                </div>
-              );
-            })}
+          <p className="lead-c">Every number on the dashboard comes from what your team does in the app, and the assistant answers from the same data.</p>
+        </div>
+
+        <div className="auth-features hide-sm">
+          {FEATURES.map(({ icon: Icon, title, text }) => (
+            <div className="auth-feature" key={title}>
+              <span className="ico">
+                <Icon size={18} />
+              </span>
+              <strong>{title}</strong>
+              {text}
+            </div>
+          ))}
+        </div>
+
+        <div className="auth-chat hide-sm" aria-hidden="true">
+          <div className="bubble q">Who is on leave today?</div>
+          <div className="bubble a">
+            <small>✦ AI-generated</small>2 people: Ayesha (casual) and Bilal (sick).
           </div>
         </div>
-        <div className="fs-13 position-relative" style={{ opacity: 0.8 }}>
-          Saylani Hackathon · HCM Lite
-        </div>
-      </div>
-      <div className="auth-form">
-        <div className="inner">{children}</div>
-      </div>
+      </section>
+
+      <main className="auth-card">{children}</main>
     </div>
   );
 }

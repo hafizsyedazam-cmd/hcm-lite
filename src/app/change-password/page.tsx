@@ -49,8 +49,8 @@ export default function ChangePasswordPage() {
   return (
     <AuthLayout>
       <span className="badge-soft s-warning no-dot mb-3">Action required</span>
-      <h3 className="mb-1">Choose your own password</h3>
-      <p className="mb-4">Hi {me.name}, you signed in with a temporary password. Set a new one to continue.</p>
+      <h3>Choose your own password</h3>
+      <p className="sub">Hi {me.name}, you signed in with a temporary password. Set a new one to continue.</p>
       <form onSubmit={submit}>
         <Field label="New password" hint="At least 8 characters.">
           <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
@@ -58,7 +58,7 @@ export default function ChangePasswordPage() {
         <Field label="Confirm new password">
           <input type="password" className="form-control" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={8} autoComplete="new-password" />
         </Field>
-        <button className="btn btn-primary w-100 py-2" disabled={busy}>
+        <button className="btn btn-auth" disabled={busy}>
           {busy ? "Saving..." : "Save and continue"}
         </button>
       </form>

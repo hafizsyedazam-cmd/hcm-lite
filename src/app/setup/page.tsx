@@ -61,8 +61,8 @@ export default function SetupPage() {
   return (
     <AuthLayout>
       <span className="badge-soft s-primary no-dot mb-3">First-run setup</span>
-      <h3 className="mb-1">Set up your company</h3>
-      <p className="mb-4">The system starts empty. Create the company and the Admin account to begin.</p>
+      <h3>Set up your company</h3>
+      <p className="sub">The system starts empty. Create the company and the Admin account to begin.</p>
       <form onSubmit={submit}>
         <Field label="Company name">
           <input className="form-control" value={form.companyName} onChange={set("companyName")} required minLength={2} placeholder="e.g. Saylani Tech" />
@@ -89,7 +89,7 @@ export default function SetupPage() {
             </Field>
           </>
         )}
-        <button className="btn btn-primary w-100 py-2" disabled={busy}>
+        <button className="btn btn-auth" disabled={busy}>
           {busy ? "Creating company..." : "Create company & Admin"}
         </button>
       </form>
